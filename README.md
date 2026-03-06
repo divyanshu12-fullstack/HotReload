@@ -1,6 +1,6 @@
-# HotReload
+# AutoBuilder
 
-`hotreload` is a self-built Go CLI that watches a project directory, rebuilds the application when code changes, and restarts the server automatically. It is designed for local development workflows where manually stopping, rebuilding, and re-running a Go service becomes repetitive and slow.
+`AutoBuilder` is a self-built Go CLI that watches a project directory, rebuilds the application when code changes, and restarts the server automatically. It is designed for local development workflows where manually stopping, rebuilding, and re-running a Go service becomes repetitive and slow.
 
 This project was built as a backend engineering assignment and intentionally avoids existing hot-reload frameworks such as `air`, `realize`, or `reflex`. The only external watcher dependency used is `fsnotify`.
 

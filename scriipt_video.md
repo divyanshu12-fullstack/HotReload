@@ -7,7 +7,7 @@ This version is written to sound more natural on camera and fit a tighter 5 to 6
 Set up your screen like this before you begin:
 
 - VS Code open at the HotReload repository.
-- Terminal open in the repository root.
+- Terminal open in the repository root. On Windows, use a `Command Prompt` terminal for the live demo instead of Git Bash.
 - Browser tab ready for `http://localhost:8080`.
 - Keep `README.md`, `main.go`, `watcher/watcher.go`, `debouncer/debouncer.go`, `builder/builder.go`, `runner/runner.go`, and `testserver/main.go` easy to switch to.
 - In `testserver/main.go`, keep the line `const version = "v1"` visible before the live demo section.
@@ -92,7 +92,7 @@ Switch to the terminal at the repository root.
 
 **What to say:**
 
-"Now I will run the live demo using the sample test server in the repository. This will show the full flow from initial build to automatic rebuild and restart after a code change."
+"Now I will run the live demo using the sample test server in the repository. I am using a standard Windows command prompt here so the compiled executable runs directly. This will show the full flow from initial build to automatic rebuild and restart after a code change."
 
 ### 3:25 - 3:55
 
@@ -100,7 +100,7 @@ Switch to the terminal at the repository root.
 Run this command in the terminal:
 
 ```bash
-./bin/hotreload.exe --root ./testserver --build "go -C .\testserver build -o ..\bin\testserver.exe ." --exec ".\bin\testserver.exe"
+.\bin\hotreload.exe --root .\testserver --build "go -C .\testserver build -o ..\bin\testserver.exe ." --exec ".\bin\testserver.exe"
 ```
 
 Pause for the logs to appear. Make sure the terminal shows the initial build and server startup.

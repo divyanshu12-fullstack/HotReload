@@ -4,9 +4,10 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
-	"strings"
 	"sync"
 	"time"
+
+	"github.com/hotreload/cli/shellcmd"
 )
 
 type Runner struct {
@@ -25,12 +26,11 @@ func New(cmdString string) *Runner {
 }
 
 func (r *Runner) Start() {
-	fields := strings.Fields(r.cmdString)
-	if len(fields) == 0 {
+	if r.cmdString == "" {
 		return
 	}
 
-	cmd := exec.Command(fields[0], fields[1:]...)
+	cmd := shellcmd.Command(r.cmdString)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

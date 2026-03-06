@@ -1,16 +1,13 @@
 package runner
 
 import (
+	"runtime"
 	"testing"
 	"time"
 )
 
 func TestRunnerStartStop(t *testing.T) {
-	// Simple command that just sleeps, giving us a chance to test killing it.
-	r := New("sleep 10")
-	if r.cmdString == "" {
-		// on windows sleep might not be perfectly available natively without path, but let's try
-	}
+	r := New(longRunningCommand())
 
 	r.Start()
 
@@ -41,4 +38,11 @@ func TestRunnerStartStop(t *testing.T) {
 	if !cmd.ProcessState.Exited() {
 		t.Fatal("process did not exit")
 	}
+}
+
+func longRunningCommand() string {
+	if runtime.GOOS == "windows" {
+		return "ping -n 30 127.0.0.1 > NUL"
+	}
+	return "sleep 30"
 }

@@ -29,3 +29,13 @@ func TestBuildReturnsFailureError(t *testing.T) {
 		t.Fatalf("expected BuildFailureError, got %T", err)
 	}
 }
+
+func TestBuildSupportsQuotedShellCommands(t *testing.T) {
+	builder := New("go version && go version")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := builder.Build(ctx); err != nil {
+		t.Fatalf("expected shell command to succeed, got %v", err)
+	}
+}

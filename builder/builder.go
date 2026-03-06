@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"os/exec"
-	"strings"
 	"time"
+
+	"github.com/hotreload/cli/shellcmd"
 )
 
 var ErrBuildCanceled = errors.New("build canceled")
@@ -37,12 +37,11 @@ func New(cmdString string) *Builder {
 }
 
 func (b *Builder) Build(ctx context.Context) error {
-	fields := strings.Fields(b.cmdString)
-	if len(fields) == 0 {
+	if b.cmdString == "" {
 		return nil
 	}
 
-	cmd := exec.CommandContext(ctx, fields[0], fields[1:]...)
+	cmd := shellcmd.CommandContext(ctx, b.cmdString)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

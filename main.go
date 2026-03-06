@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/hotreload/cli/builder"
+	"github.com/hotreload/cli/cmdline"
 	"github.com/hotreload/cli/debouncer"
 	"github.com/hotreload/cli/runner"
 	"github.com/hotreload/cli/watcher"
@@ -58,6 +59,7 @@ func main() {
 			slog.Info("file changed, rebuilding", "file", event.Name)
 			d.Input <- event
 		}
+		close(d.Input)
 	}()
 	go d.Start()
 
@@ -129,10 +131,15 @@ func main() {
 	// Shutdown handling
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	debounceOutput := d.Output
 
 	for {
 		select {
-		case <-d.Output:
+		case _, ok := <-debounceOutput:
+			if !ok {
+				debounceOutput = nil
+				continue
+			}
 			triggerRebuild()
 		case <-sigs:
 			mu.Lock()
@@ -148,7 +155,10 @@ func main() {
 func collectIgnoredPaths(buildCmd string, execCmd string) []string {
 	paths := make([]string, 0, 2)
 
-	fields := strings.Fields(buildCmd)
+	fields, err := cmdline.Fields(buildCmd)
+	if err != nil {
+		fields = nil
+	}
 	for index, field := range fields {
 		if field == "-o" && index+1 < len(fields) {
 			paths = append(paths, resolvePath(fields[index+1]))
@@ -164,7 +174,10 @@ func collectIgnoredPaths(buildCmd string, execCmd string) []string {
 }
 
 func firstCommandToken(command string) string {
-	fields := strings.Fields(command)
+	fields, err := cmdline.Fields(command)
+	if err != nil {
+		return ""
+	}
 	if len(fields) == 0 {
 		return ""
 	}

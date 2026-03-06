@@ -16,6 +16,9 @@ type Watcher struct {
 	Events       chan fsnotify.Event
 	ignoredPaths []string
 	watchedDirs  map[string]struct{}
+	started      bool
+	readDone     chan struct{}
+	stopOnce     sync.Once
 	mu           sync.Mutex
 }
 
@@ -45,6 +48,7 @@ func New(root string, ignoredPaths ...string) (*Watcher, error) {
 		Events:       make(chan fsnotify.Event, 100),
 		ignoredPaths: normalizedIgnored,
 		watchedDirs:  make(map[string]struct{}),
+		readDone:     make(chan struct{}),
 	}
 
 	return wt, nil
@@ -59,6 +63,10 @@ func (w *Watcher) Start() error {
 	if w.directoryCount() > 1000 {
 		slog.Warn("watched directory count exceeds 1000. Consider increasing OS inotify limit")
 	}
+
+	w.mu.Lock()
+	w.started = true
+	w.mu.Unlock()
 
 	go w.readEvents()
 	return nil
@@ -176,6 +184,9 @@ func (w *Watcher) removeWatchedDir(path string) {
 }
 
 func (w *Watcher) readEvents() {
+	defer close(w.readDone)
+	defer close(w.Events)
+
 	for {
 		select {
 		case event, ok := <-w.watcher.Events:
@@ -224,8 +235,22 @@ func (w *Watcher) readEvents() {
 }
 
 func (w *Watcher) Stop() {
-	w.watcher.Close()
-	close(w.Events)
+	w.stopOnce.Do(func() {
+		_ = w.watcher.Close()
+
+		w.mu.Lock()
+		started := w.started
+		readDone := w.readDone
+		w.mu.Unlock()
+
+		if started {
+			<-readDone
+			return
+		}
+
+		close(w.Events)
+		close(readDone)
+	})
 }
 
 func normalizePath(path string) string {

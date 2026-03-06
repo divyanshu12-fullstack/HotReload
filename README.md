@@ -48,7 +48,6 @@ After startup, the tool will:
 ├── testserver/
 ├── Makefile
 ├── README.md
-└── script.md
 ```
 
 ## Installation
@@ -156,12 +155,4 @@ The tool uses `log/slog` for operational logging. Build output and server output
 - Very large directory trees may hit OS watch limits.
 - The repository still requires manual submission steps outside the codebase, such as GitHub sharing and the Loom recording.
 
-## Submission checklist
 
-The codebase is ready, but these manual steps still need to be completed before final submission:
-
-- create the private GitHub repository,
-- push the code,
-- share access with `recruitments@trademarkia.com`,
-- record the Loom walkthrough,
-- submit the form.
